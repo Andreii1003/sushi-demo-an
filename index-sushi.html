@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Суші-бар — Демо-версія сайту</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23141414'/%3E%3Ccircle cx='50' cy='50' r='36' fill='none' stroke='%23e63946' stroke-width='3'/%3E%3Crect x='28' y='44' width='44' height='12' rx='6' fill='%23e63946'/%3E%3Crect x='30' y='46' width='40' height='8' rx='4' fill='%23f4a261'/%3E%3Ccircle cx='38' cy='50' r='2.5' fill='%23fff' opacity='0.5'/%3E%3Ccircle cx='50' cy='50' r='2.5' fill='%23fff' opacity='0.5'/%3E%3Ccircle cx='62' cy='50' r='2.5' fill='%23fff' opacity='0.5'/%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        :root {
+            --bg: #0a0a0a;
+            --bg-card: #141414;
+            --bg-light: #111111;
+            --text: #ffffff;
+            --text-muted: #999999;
+            --accent: #e63946;
+            --accent-glow: rgba(230,57,70,0.25);
+            --gold: #f4a261;
+            --border: #222222;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+        /* ANIMATIONS */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+            50% { box-shadow: 0 0 0 12px rgba(230,57,70,0); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* PROMO BAR */
+        .promo-bar {
+            background: linear-gradient(90deg, var(--accent), #c1121f);
+            padding: 10px 16px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1002;
+        }
+
+        /* NAV */
+        nav {
+            position: fixed;
+            top: 0px;
+            width: 100%;
+            z-index: 1000;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+        nav.scrolled {
+            background: rgba(10,10,10,0.95);
+            backdrop-filter: blur(20px);
+            top: 0;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+        }
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+        .nav-links {
+            display: none;
+        }
+        .nav-cta {
+            background: var(--accent);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .cart-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            position: relative;
+            margin-right: 8px;
+        }
+        .cart-count {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s;
+        }
+        .cart-count.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .mobile-menu-btn {
+            display: flex;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* HERO */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 100px 20px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(ellipse at 70% 30%, rgba(230,57,70,0.06) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .hero-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 32px;
+            align-items: center;
+            width: 100%;
+        }
+        .hero-content {
+            z-index: 1;
+            text-align: center;
+            animation: fadeInUp 0.8s ease both;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(230,57,70,0.12);
+            border: 1px solid rgba(230,57,70,0.25);
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+        .hero h1 {
+            font-size: clamp(32px, 8vw, 56px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            letter-spacing: -1.5px;
+        }
+        .hero h1 .highlight {
+            background: linear-gradient(90deg, var(--accent), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% auto;
+            animation: shimmer 3s linear infinite;
+        }
+        .hero-desc {
+            font-size: 16px;
+            color: var(--text-muted);
+            max-width: 420px;
+            margin: 0 auto 28px;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+        .hero-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            padding: 16px 32px;
+            border-radius: 100px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            min-width: 180px;
+        }
+        .btn-primary:hover, .btn-primary:active {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px var(--accent-glow);
+        }
+        .btn-secondary {
+            background: transparent;
+            color: var(--text);
+            padding: 16px 32px;
+            border-radius: 100px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            display: inline-block;
+            border: 1px solid var(--border);
+            text-align: center;
+            min-width: 180px;
+        }
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .hero-image {
+            position: relative;
+            height: 280px;
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+        .hero-image-placeholder {
+            font-size: 80px;
+            opacity: 0.3;
+        }
+        .hero-stats {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.4s both;
+        }
+        .stat {
+            text-align: center;
+            padding: 12px 20px;
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            min-width: 90px;
+        }
+        .stat-num {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--accent);
+            line-height: 1;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        /* SECTIONS */
+        .section {
+            padding: 60px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .section-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--accent);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        .section-title {
+            font-size: clamp(26px, 6vw, 40px);
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1.15;
+        }
+
+        /* POPULAR */
+        .popular-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .popular-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+        .popular-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .popular-img {
+            width: 100%;
+            height: 140px;
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            position: relative;
+        }
+        .popular-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--accent);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .popular-info {
+            padding: 16px;
+        }
+        .popular-info h3 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .popular-info p {
+            color: var(--text-muted);
+            font-size: 12px;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .popular-price {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+        .popular-price span {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+        .add-to-cart {
+            width: 100%;
+            background: rgba(230,57,70,0.1);
+            border: 1px solid rgba(230,57,70,0.3);
+            color: var(--accent);
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .add-to-cart:hover, .add-to-cart:active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        /* MENU TABS */
+        .menu-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .menu-tabs::-webkit-scrollbar { display: none; }
+        .menu-tab {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 10px 20px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .menu-tab:hover, .menu-tab.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        .menu-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        .menu-item:hover {
+            border-color: var(--accent);
+        }
+        .menu-item-img {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            flex-shrink: 0;
+        }
+        .menu-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .menu-item-info h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .menu-item-info p {
+            color: var(--text-muted);
+            font-size: 12px;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        .menu-item-price {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+        .menu-item-price span {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+        .menu-add-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(230,57,70,0.1);
+            border: 1px solid rgba(230,57,70,0.3);
+            color: var(--accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+        .menu-add-btn:hover, .menu-add-btn:active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        /* REVIEWS */
+        .reviews-bg {
+            background: var(--bg-light);
+        }
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        .review-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s;
+        }
+        .review-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+        }
+        .review-stars {
+            color: var(--gold);
+            font-size: 16px;
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+        }
+        .review-text {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            color: #ccc;
+        }
+        .review-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .review-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent), var(--gold));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .review-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .review-date {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* CONTACT */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+        .info-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .info-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            transition: all 0.3s;
+        }
+        .info-card:hover {
+            border-color: var(--accent);
+        }
+        .info-icon {
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            background: rgba(230,57,70,0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .info-content label {
+            display: block;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        .info-content p, .info-content a {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .info-content a:hover {
+            color: var(--accent);
+        }
+        .map-wrap {
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            height: 250px;
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            opacity: 0.5;
+        }
+
+        /* ORDER MODAL */
+        .order-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            z-index: 3000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .order-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .order-modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 480px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 32px;
+            position: relative;
+            animation: modalIn 0.4s ease both;
+        }
+        .order-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .order-modal-header h2 {
+            font-size: 22px;
+            font-weight: 800;
+        }
+        .order-close {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .order-close:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 16px;
+            color: var(--text);
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+            outline: none;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(230,57,70,0.1);
+        }
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #555;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .form-group .required {
+            color: var(--accent);
+        }
+        .form-error {
+            color: var(--accent);
+            font-size: 12px;
+            margin-top: 6px;
+            display: none;
+        }
+        .form-group.error input,
+        .form-group.error textarea {
+            border-color: var(--accent);
+        }
+        .form-group.error .form-error {
+            display: block;
+        }
+        .order-submit {
+            width: 100%;
+            background: var(--accent);
+            color: #fff;
+            padding: 16px;
+            border-radius: 14px;
+            border: none;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+        .order-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--accent-glow);
+        }
+        .order-success {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+        .order-success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 20px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .order-success h3 {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+        .order-success p {
+            color: var(--text-muted);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* CART SIDEBAR */
+        .cart-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        .cart-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            max-width: 420px;
+            height: 100vh;
+            background: var(--bg);
+            border-left: 1px solid var(--border);
+            z-index: 2001;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .cart-sidebar.active {
+            transform: translateX(0);
+        }
+        .cart-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cart-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+        }
+        .cart-close {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .cart-empty {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 60px 20px;
+            font-size: 15px;
+        }
+        .cart-item {
+            display: flex;
+            gap: 14px;
+            padding: 16px;
+            background: var(--bg-card);
+            border-radius: 14px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+        }
+        .cart-item-img {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+        .cart-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .cart-item-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .cart-item-price {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .cart-item-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .cart-item-btn {
+            width: 32px;
+            height: 32px;
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .cart-item-qty {
+            font-weight: 700;
+            font-size: 14px;
+            min-width: 24px;
+            text-align: center;
+        }
+        .cart-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+            background: var(--bg-card);
+        }
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .cart-total span:last-child {
+            color: var(--accent);
+            font-size: 24px;
+        }
+        .cart-checkout {
+            width: 100%;
+            background: var(--accent);
+            color: #fff;
+            padding: 16px;
+            border-radius: 14px;
+            border: none;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .cart-checkout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--accent-glow);
+        }
+
+        /* MOBILE NAV */
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10,10,10,0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+        }
+        .mobile-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: 500;
+            padding: 6px 12px;
+            transition: all 0.3s;
+        }
+        .mobile-nav a span:first-child {
+            font-size: 22px;
+        }
+        .mobile-nav a.active, .mobile-nav a:hover {
+            color: var(--accent);
+        }
+
+        /* FOOTER */
+        footer {
+            background: var(--bg-light);
+            padding: 40px 20px 100px;
+            border-top: 1px solid var(--border);
+        }
+        .footer-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 32px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+        .footer-brand {
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .footer-desc {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.6;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        .footer-col h4 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+        .footer-col a {
+            display: block;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 10px;
+            transition: color 0.3s;
+        }
+        .footer-col a:hover {
+            color: var(--accent);
+        }
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        .footer-social {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .footer-social a {
+            width: 44px;
+            height: 44px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+        .footer-social a:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        /* DESKTOP */
+        @media (min-width: 768px) {
+            .hero-grid { grid-template-columns: 1fr 1fr; text-align: left; }
+            .hero-content { text-align: left; }
+            .hero-desc { margin: 0 0 28px; }
+            .hero-buttons { justify-content: flex-start; }
+            .hero-stats { justify-content: flex-start; }
+            .hero-image { height: 400px; }
+            .popular-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+            .popular-img { height: 180px; }
+            .menu-grid { grid-template-columns: repeat(2, 1fr); }
+            .reviews-grid { grid-template-columns: repeat(3, 1fr); }
+            .contact-grid { grid-template-columns: 1fr 1fr; }
+            .map-wrap { height: 100%; min-height: 400px; }
+            .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; text-align: left; }
+            .footer-brand { justify-content: flex-start; }
+            .footer-desc { margin: 0; }
+            .mobile-nav { display: none; }
+            .nav-links {
+                display: flex;
+                gap: 32px;
+                list-style: none;
+            }
+            .nav-links a {
+                color: var(--text-muted);
+                text-decoration: none;
+                font-size: 13px;
+                font-weight: 500;
+                transition: all 0.3s;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                position: relative;
+            }
+            .nav-links a:hover { color: var(--text); }
+            .mobile-menu-btn { display: none; }
+            footer { padding-bottom: 40px; }
+            .section { padding: 80px 40px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PROMO BAR -->
+    
+
+    <!-- NAV -->
+    <nav id="navbar">
+        <div class="logo">
+            <div class="logo-icon">🍣</div>
+            Суші-бар
+        </div>
+        <ul class="nav-links">
+            <li><a href="#popular">Хіти</a></li>
+            <li><a href="#menu">Меню</a></li>
+            <li><a href="#reviews">Відгуки</a></li>
+            <li><a href="#contact">Контакти</a></li>
+        </ul>
+        <div style="display:flex;align-items:center;">
+            <button class="cart-btn" onclick="toggleCart()">
+                🛒
+                <span class="cart-count" id="cartCount">0</span>
+            </button>
+            <a href="#contact" class="nav-cta">Замовити</a>
+            <button class="mobile-menu-btn" onclick="scrollToSection('menu')">☰</button>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-grid">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span>⭐</span> Швидка доставка
+                </div>
+                <h1>Свіжі роли<br>з доставкою за <span class="highlight">30 хвилин</span></h1>
+                <p class="hero-desc">Найсвіжіші інгредієнти, ідеальний баланс смаків та швидка доставка. Спробуйте справжнє задоволення від японської кухні.</p>
+                <div class="hero-buttons">
+                    <a href="#menu" class="btn-primary">Дивитись меню</a>
+                    <a href="#contact" class="btn-secondary">Залишити заявку</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="stat-num">5.0</div>
+                        <div class="stat-label">Рейтинг</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-num">50+</div>
+                        <div class="stat-label">Страв</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-num">30</div>
+                        <div class="stat-label">Хвилин</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="hero-image-placeholder">🍱</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- POPULAR -->
+    <section class="section" id="popular">
+        <div class="section-header">
+            <div class="section-label">Популярне</div>
+            <h2 class="section-title">Хіти меню</h2>
+        </div>
+        <div class="popular-grid" id="popularGrid"></div>
+    </section>
+
+    <!-- MENU -->
+    <section class="section" id="menu">
+        <div class="section-header">
+            <div class="section-label">Меню</div>
+            <h2 class="section-title">Всі страви</h2>
+        </div>
+        <div class="menu-tabs" id="menuTabs">
+            <button class="menu-tab active" onclick="filterMenu('all')">Всі</button>
+            <button class="menu-tab" onclick="filterMenu('rolls')">Роли</button>
+            <button class="menu-tab" onclick="filterMenu('sushi')">Суші</button>
+            <button class="menu-tab" onclick="filterMenu('sets')">Сети</button>
+            <button class="menu-tab" onclick="filterMenu('drinks')">Напої</button>
+        </div>
+        <div class="menu-grid" id="menuGrid"></div>
+    </section>
+
+    <!-- REVIEWS -->
+    <section class="section reviews-bg" id="reviews">
+        <div class="section-header">
+            <div class="section-label">Відгуки</div>
+            <h2 class="section-title">Що кажуть клієнти</h2>
+        </div>
+        <div class="reviews-grid">
+            <div class="review-card">
+                <div class="review-stars">★★★★★</div>
+                <p class="review-text">«Найкращі роли в місті! Доставка завжди вчасно, а якість просто приголомшлива. Рекомендую всім!»</p>
+                <div class="review-author">
+                    <div class="review-avatar">О</div>
+                    <div>
+                        <div class="review-name">Олександр</div>
+                        <div class="review-date">2 дні тому</div>
+                    </div>
+                </div>
+            </div>
+            <div class="review-card">
+                <div class="review-stars">★★★★★</div>
+                <p class="review-text">«Замовляю вже втретє. Все завжди свіже, тепле та неймовірно смачне. Окреме дякую за соуси!»</p>
+                <div class="review-author">
+                    <div class="review-avatar">М</div>
+                    <div>
+                        <div class="review-name">Марія</div>
+                        <div class="review-date">5 днів тому</div>
+                    </div>
+                </div>
+            </div>
+            <div class="review-card">
+                <div class="review-stars">★★★★★</div>
+                <p class="review-text">«Відмінне співвідношення ціни та якості. Великі порції, гарна подача. Тепер тільки до вас!»</p>
+                <div class="review-author">
+                    <div class="review-avatar">Д</div>
+                    <div>
+                        <div class="review-name">Дмитро</div>
+                        <div class="review-date">тиждень тому</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="section" id="contact">
+        <div class="section-header">
+            <div class="section-label">Контакти</div>
+            <h2 class="section-title">Зв'яжіться з нами</h2>
+        </div>
+        <div class="contact-grid">
+            <div class="info-cards">
+                <div class="info-card">
+                    <div class="info-icon">📞</div>
+                    <div class="info-content">
+                        <label>Телефон</label>
+                        <a href="#">Уточнюється</a>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">📍</div>
+                    <div class="info-content">
+                        <label>Адреса</label>
+                        <p>Уточнюється</p>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">🕐</div>
+                    <div class="info-content">
+                        <label>Режим роботи</label>
+                        <p>Щоденно 10:00 — 23:00</p>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">✉️</div>
+                    <div class="info-content">
+                        <label>Email</label>
+                        <a href="#">info@example.com</a>
+                    </div>
+                </div>
+            </div>
+            <div class="map-wrap">🗺️</div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-grid">
+            <div>
+                <div class="footer-brand">
+                    <div class="logo-icon" style="width:36px;height:36px;font-size:18px;">🍣</div>
+                    Суші-бар
+                </div>
+                <p class="footer-desc">Демо-версія сайту для суші-бару. Усі дані мають виключно демонстраційний характер.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Меню</h4>
+                <a href="#popular">Хіти</a>
+                <a href="#menu">Роли</a>
+                <a href="#menu">Суші</a>
+                <a href="#menu">Сети</a>
+            </div>
+            <div class="footer-col">
+                <h4>Інформація</h4>
+                <a href="#reviews">Відгуки</a>
+                <a href="#contact">Контакти</a>
+                <a href="#">Доставка</a>
+                <a href="#">Акції</a>
+            </div>
+            <div class="footer-col">
+                <h4>Соцмережі</h4>
+                <div class="footer-social">
+                    <a href="#">📷</a>
+                    <a href="#">💬</a>
+                    <a href="#">🎵</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 Демо-версія. Всі права захищені.</p>
+        </div>
+    </footer>
+
+    <!-- MOBILE NAV -->
+    <div class="mobile-nav">
+        <a href="#popular" class="active">
+            <span>🔥</span>
+            Хіти
+        </a>
+        <a href="#menu">
+            <span>📋</span>
+            Меню
+        </a>
+        <a href="#reviews">
+            <span>⭐</span>
+            Відгуки
+        </a>
+        <a href="#contact">
+            <span>📞</span>
+            Контакти
+        </a>
+    </div>
+
+    <!-- CART SIDEBAR -->
+    <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h2>🛒 Кошик</h2>
+            <button class="cart-close" onclick="toggleCart()">✕</button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="cart-empty">Кошик порожній</div>
+        </div>
+        <div class="cart-footer" id="cartFooter" style="display:none;">
+            <div class="cart-total">
+                <span>Разом:</span>
+                <span id="cartTotal">0 ₴</span>
+            </div>
+            <button class="cart-checkout" onclick="openOrderModal()">Оформити замовлення</button>
+        </div>
+    </div>
+
+    <!-- ORDER MODAL -->
+    <div class="order-overlay" id="orderOverlay" onclick="closeOrderModal(event)">
+        <div class="order-modal" onclick="event.stopPropagation()">
+            <div id="orderFormContent">
+                <div class="order-modal-header">
+                    <h2>📝 Оформлення замовлення</h2>
+                    <button class="order-close" onclick="closeOrderModal()">✕</button>
+                </div>
+                <form id="orderForm" onsubmit="submitOrder(event)">
+                    <div class="form-group" id="groupName">
+                        <label>Ім'я <span class="required">*</span></label>
+                        <input type="text" id="orderName" placeholder="Ваше ім'я" autocomplete="name">
+                        <div class="form-error">Будь ласка, введіть ваше ім'я</div>
+                    </div>
+                    <div class="form-group" id="groupPhone">
+                        <label>Телефон <span class="required">*</span></label>
+                        <input type="tel" id="orderPhone" placeholder="+380 (__) ___-__-__" autocomplete="tel">
+                        <div class="form-error">Будь ласка, введіть коректний номер телефону</div>
+                    </div>
+                    <div class="form-group" id="groupAddress">
+                        <label>Адреса доставки</label>
+                        <input type="text" id="orderAddress" placeholder="Куди привезти" autocomplete="street-address">
+                    </div>
+                    <div class="form-group" id="groupComment">
+                        <label>Коментар</label>
+                        <textarea id="orderComment" placeholder="Побажання, під'їзд, поверх"></textarea>
+                    </div>
+                    <button type="submit" class="order-submit">Підтвердити замовлення</button>
+                </form>
+            </div>
+            <div class="order-success" id="orderSuccess">
+                <div class="order-success-icon">✓</div>
+                <h3>Замовлення прийнято!</h3>
+                <p>Ми зателефонуємо вам для підтвердження</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DATA
+        const menuItems = [
+            { id: 1, name: 'Філадельфія', category: 'rolls', price: 450, desc: 'Лосось, вершковий сир, огірок', icon: '🍣', badge: 'Хіт' },
+            { id: 2, name: 'Каліфорнія', category: 'rolls', price: 390, desc: 'Краб, авокадо, огірок, тобіко', icon: '🍱', badge: 'Топ' },
+            { id: 3, name: 'Дракон', category: 'rolls', price: 520, desc: 'Вугор, авокадо, соус унагі', icon: '🐉', badge: '' },
+            { id: 4, name: 'Спайсі Тунець', category: 'sushi', price: 280, desc: 'Тунець, спайсі соус', icon: '🐟', badge: 'Гостре' },
+            { id: 5, name: 'Гункан Лосось', category: 'sushi', price: 220, desc: 'Лосось, рис, норі', icon: '🍙', badge: '' },
+            { id: 6, name: 'Сет Сімейний', category: 'sets', price: 1890, desc: '32 шт. Роли на компанію', icon: '🍱', badge: 'Вигода' },
+            { id: 7, name: 'Сет Класик', category: 'sets', price: 1290, desc: '24 шт. Найкращі хіти', icon: '🥢', badge: '' },
+            { id: 8, name: 'Мохіто', category: 'drinks', price: 250, desc: 'Безалкогольний, м\'ята, лайм', icon: '🍹', badge: '' },
+            { id: 9, name: 'Зелений чай', category: 'drinks', price: 150, desc: 'Сенча, класичний', icon: '🍵', badge: '' },
+            { id: 10, name: 'Саке Коктейль', category: 'drinks', price: 350, desc: 'Фруктовий, легкий', icon: '🍶', badge: 'Нове' },
+        ];
+
+        const popularItems = [menuItems[0], menuItems[1], menuItems[5], menuItems[3], menuItems[6], menuItems[2]];
+
+        let cart = JSON.parse(localStorage.getItem('demoCart')) || {};
+
+        // RENDER POPULAR
+        function renderPopular() {
+            const grid = document.getElementById('popularGrid');
+            grid.innerHTML = popularItems.map(item => `
+                <div class="popular-card">
+                    <div class="popular-img">
+                        ${item.badge ? `<div class="popular-badge">${item.badge}</div>` : ''}
+                        ${item.icon}
+                    </div>
+                    <div class="popular-info">
+                        <h3>${item.name}</h3>
+                        <p>${item.desc}</p>
+                        <div class="popular-price">${item.price} <span>₴</span></div>
+                        <button class="add-to-cart" onclick="addToCart(${item.id})">В кошик</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // RENDER MENU
+        function renderMenu(filter = 'all') {
+            const grid = document.getElementById('menuGrid');
+            const items = filter === 'all' ? menuItems : menuItems.filter(i => i.category === filter);
+            grid.innerHTML = items.map(item => `
+                <div class="menu-item">
+                    <div class="menu-item-img">${item.icon}</div>
+                    <div class="menu-item-info">
+                        <h4>${item.name}</h4>
+                        <p>${item.desc}</p>
+                        <div class="menu-item-price">${item.price} <span>₴</span></div>
+                    </div>
+                    <button class="menu-add-btn" onclick="addToCart(${item.id})">+</button>
+                </div>
+            `).join('');
+        }
+
+        function filterMenu(cat) {
+            document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            renderMenu(cat);
+        }
+
+        // CART
+        function addToCart(id) {
+            const item = menuItems.find(i => i.id === id);
+            if (!cart[id]) cart[id] = { ...item, qty: 0 };
+            cart[id].qty++;
+            saveCart();
+            updateCartUI();
+            toggleCart(true);
+        }
+
+        function removeFromCart(id) {
+            if (cart[id]) {
+                cart[id].qty--;
+                if (cart[id].qty <= 0) delete cart[id];
+                saveCart();
+                updateCartUI();
+            }
+        }
+
+        function saveCart() {
+            localStorage.setItem('demoCart', JSON.stringify(cart));
+        }
+
+        function updateCartUI() {
+            const items = Object.values(cart);
+            const totalQty = items.reduce((s, i) => s + i.qty, 0);
+            const totalPrice = items.reduce((s, i) => s + i.qty * i.price, 0);
+            
+            const countEl = document.getElementById('cartCount');
+            countEl.textContent = totalQty;
+            countEl.classList.toggle('visible', totalQty > 0);
+
+            const cartItems = document.getElementById('cartItems');
+            const cartFooter = document.getElementById('cartFooter');
+            
+            if (totalQty === 0) {
+                cartItems.innerHTML = '<div class="cart-empty">Кошик порожній</div>';
+                cartFooter.style.display = 'none';
+            } else {
+                cartItems.innerHTML = items.map(item => `
+                    <div class="cart-item">
+                        <div class="cart-item-img">${item.icon}</div>
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">${item.name}</div>
+                            <div class="cart-item-price">${item.price} ₴</div>
+                            <div class="cart-item-controls">
+                                <button class="cart-item-btn" onclick="removeFromCart(${item.id})">−</button>
+                                <span class="cart-item-qty">${item.qty}</span>
+                                <button class="cart-item-btn" onclick="addToCart(${item.id})">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                cartFooter.style.display = 'block';
+                document.getElementById('cartTotal').textContent = totalPrice.toLocaleString() + ' ₴';
+            }
+        }
+
+        function toggleCart(forceOpen) {
+            const overlay = document.getElementById('cartOverlay');
+            const sidebar = document.getElementById('cartSidebar');
+            const isOpen = sidebar.classList.contains('active');
+            if (forceOpen === true && isOpen) return;
+            if (forceOpen === true || !isOpen) {
+                overlay.classList.add('active');
+                sidebar.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            } else {
+                overlay.classList.remove('active');
+                sidebar.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // ORDER MODAL
+        function openOrderModal() {
+            document.getElementById('orderOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            document.getElementById('orderForm').reset();
+            document.getElementById('orderFormContent').style.display = 'block';
+            document.getElementById('orderSuccess').style.display = 'none';
+            clearFormErrors();
+        }
+
+        function closeOrderModal(e) {
+            if (e && e.target !== e.currentTarget) return;
+            document.getElementById('orderOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function clearFormErrors() {
+            document.querySelectorAll('.form-group').forEach(g => g.classList.remove('error'));
+        }
+
+        // PHONE MASK
+        const phoneInput = document.getElementById('orderPhone');
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.startsWith('380')) value = value.slice(3);
+            if (value.startsWith('0')) value = value.slice(1);
+            
+            let formatted = '+380';
+            if (value.length > 0) {
+                formatted += ' (' + value.slice(0, 2);
+                if (value.length >= 2) formatted += ')';
+                if (value.length > 2) formatted += ' ' + value.slice(2, 5);
+                if (value.length > 5) formatted += '-' + value.slice(5, 7);
+                if (value.length > 7) formatted += '-' + value.slice(7, 9);
+            }
+            e.target.value = formatted;
+        });
+
+        phoneInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && this.value.length <= 4) {
+                e.preventDefault();
+            }
+        });
+
+        function submitOrder(e) {
+            e.preventDefault();
+            clearFormErrors();
+            
+            const name = document.getElementById('orderName').value.trim();
+            const phone = document.getElementById('orderPhone').value.trim();
+            let hasError = false;
+
+            if (!name) {
+                document.getElementById('groupName').classList.add('error');
+                hasError = true;
+            }
+
+            const phoneDigits = phone.replace(/\D/g, '');
+            if (phoneDigits.length < 12) {
+                document.getElementById('groupPhone').classList.add('error');
+                hasError = true;
+            }
+
+            if (hasError) return;
+
+            // Show success
+            document.getElementById('orderFormContent').style.display = 'none';
+            document.getElementById('orderSuccess').style.display = 'block';
+
+            // Clear cart
+            cart = {};
+            saveCart();
+            updateCartUI();
+
+            // Close modal after delay
+            setTimeout(() => {
+                closeOrderModal();
+                toggleCart(false);
+            }, 2500);
+        }
+
+        // NAV SCROLL
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) nav.classList.add('scrolled');
+            else nav.classList.remove('scrolled');
+        });
+
+        // MOBILE NAV ACTIVE
+        document.querySelectorAll('.mobile-nav a').forEach(link => {
+            link.addEventListener('click', function() {
+                document.querySelectorAll('.mobile-nav a').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // INIT
+        renderPopular();
+        renderMenu();
+        updateCartUI();
+    </script>
+</body>
+</html>
